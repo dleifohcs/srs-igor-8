@@ -1,0 +1,4 @@
+This is the recommended place to store your personal Igor Pro files. To activate WaveMetrics extensions and procedure files, place aliases or shortcuts to them in these folders.
+
+For more information, execute this in Igor:
+	DisplayHelpTopic "Igor Pro User Files"

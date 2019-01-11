@@ -1,0 +1,1 @@
+Most of the colour tables contained in this directory come courtesy of Yuhki Kohsaka (http://www.riken.jp/epmrt/kohsaka/cv.html).

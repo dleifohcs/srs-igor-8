@@ -13,7 +13,6 @@ A collection of macros for Igor Pro v8 for analysing scanning tunnelling microsc
  Steven R. Schofield, University College London  
  steven.schofield at ucl.ac.uk
 
- Now updating a new version see dleifohcs/srs-igor-8
 =============================================================================
  
 SRS-STM: This is a project that I continue to work on slowly, and that is 

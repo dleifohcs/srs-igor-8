@@ -28,9 +28,9 @@
 
 Static StrConstant titleSTM=      	"SRS STM: A Macro Package for Igor Pro to Analyse STM and STS Data"
 Static StrConstant titleSPECS=   	"SRS SPECS: A Macro Package for Igor Pro to Analyse Photoelectron Spectroscopy Data"
-Static StrConstant versioninfo= 	"Version 0.81 (June 2015), writen for Igor Pro 6.37 (on a Macbook Pro running Mac OS X 10.10.4 Yosemite)"
+Static StrConstant versioninfo= 	"Version 0.91 (Jan 2019), writen for Igor Pro 8.00 (on a Macbook Pro running Mac OS X 10.14.2 Mojave)"
 Static StrConstant author=   	"Steven R. Schofield, University College London"
-Static StrConstant email=      	"steven.schofield@physics.org"
+Static StrConstant email=      	"s.schofield@ucl.ac.uk"
 
 
 Menu ""

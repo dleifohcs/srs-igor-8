@@ -6,7 +6,7 @@
 //
 //------------------------------------------------------------------------------------------------------------------------------------
 //
-// Copyright 2013 Steven Schofield
+// Copyright 2013 Steven R. Schofield
 //
 //    This library is free software: you can redistribute it and/or modify
 //    it under the terms of the GNU General Public License as published by
@@ -947,7 +947,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	FBinRead refNum, magic_word
 	FBinRead refNum, file_structure_level 
 	// if not a flat file then stop
-	if ( cmpstr(magic_word,"FLAT")!=0 )
+	if ( cmpstr(magic_word,"0100")!=0 )
 		Print "ERROR: File does not have a Flat File Format header.  Stopping"
 		return 1
 	else

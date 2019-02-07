@@ -2855,7 +2855,7 @@ Function quickSaveImage([symbolicPath,imageType])
 		//else
 			strswitch ( imageDataOnly )
 				case "no":
-					SavePICT /O/Z /Q=1 /P=$symbolicPath /T=imageType /B=144 as imageFileName+".jpg"
+					SavePICT /O/Z /Q=1 /P=$symbolicPath /E=-6 /B=144 as imageFileName+".jpg"
 					break
 				
 				case "yes":

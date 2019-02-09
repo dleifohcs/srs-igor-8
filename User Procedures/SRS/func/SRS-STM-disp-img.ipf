@@ -26,8 +26,6 @@
 //------------------------------------------------------------------------------------------------------------------------------------
 #pragma rtGlobals=1		// Use modern global access method.
 
-
-
 //------------------------------------------------------------------------------------------------------------------------------------
 // Below is a list of functions contained in this file
 //------------------------------------------------------------------------------------------------------------------------------------
@@ -116,7 +114,6 @@ Function displayAllData([autoBG])
 	// Get current data folder
 	DFREF saveDF = GetDataFolderDFR()	  // Save
 	String imgDF = GetDataFolder(1)  // This is the DF that holds the wave data
-
 	
 	// List (2D) waves in current data folder
 	String w2dList =  WaveList("*",";","DIMS:2") 
@@ -129,6 +126,10 @@ Function displayAllData([autoBG])
 	// Join 2D and 3D wave lists
 	String wList = w2dList+w3dList 
 	Variable wNum = w2dNum + w3dNum
+	
+	// these are for the kill and clear waves loop below
+	Variable index, numlist
+	String list
 	
 	if (wNum!=0)  // check that at least one 2D or 3D data set exists 
 	
@@ -146,7 +147,7 @@ Function displayAllData([autoBG])
 			// Create Wave assignment for image
 			Wave imgW= $imgWFullStr
 	
-		    if (cmpstr(autoSaveImage,"yes")==0)
+		   if (cmpstr(autoSaveImage,"yes")==0)
 			WaveStats/Q imgW
 			dataPercent = V_npnts/V_numNaNs
 			if ( numtype (V_sdev)!=0 )
@@ -172,11 +173,11 @@ Function displayAllData([autoBG])
 					// quickSaveImage(symbolicPath="dataDirectory",imageType="TIFF")
 				else
 					// if a 3D wave then do the following
-					img3dDisplay(imgWStr)
-					quickSaveImage(symbolicPath="dataJPEGIVDirectory",imageType="JPEG")
+					//img3dDisplay(imgWStr)
+					//quickSaveImage(symbolicPath="dataJPEGIVDirectory",imageType="JPEG")
 				endif
 			endif
-		    else
+		   else
 		    	// Display the data
 				if (WaveDims(imgW)<3)
 					// if a 2D wave then do the following
@@ -193,11 +194,21 @@ Function displayAllData([autoBG])
 					endif
 				endif
 		    endif
-			
+		    KillWaves imgW
+		    WaveClear imgW
 		endfor
 		if (cmpstr(autoSaveImage,"yes")==0)
-				SetDataFolder root: 
+				SetDataFolder root:imgDF: 
+				list = WaveList("*",";","DIMS:2") 	
+				numList = ItemsInList(list)
+				for (index=0;index<numList;index+=1)
+					Wave theimgwave = $(StringFromList(index, list))
+					KillWaves $(StringFromList(index, list))
+					WaveClear theimgwave
+    			endfor
 				KillDataFolder/Z imgDF
+				SetDataFolder WinGlobals
+				KillDataFolder/Z "IMG"
 		endif
 	else
 		//Print "Error: no 2D or 3D image data found in the current data folder"
@@ -206,9 +217,11 @@ Function displayAllData([autoBG])
 			quickSaveImage(symbolicPath="dataJPEGIVDirectory",imageType="JPEG")
 			SetDataFolder root: 
 			KillDataFolder/Z imgDF
+			SetDataFolder WinGlobals
+			KillDataFolder/Z "IMG"
 		endif
 	endif
-		
+
 	// Return to original data folder
 	SetDataFolder saveDF	
 End
@@ -274,13 +287,9 @@ Function imgDisplay(imgWStr)
 	doSomethingWithData("makeImgPretty")
 	
 	// Autoposition window
-	AutoPositionWindow/E
-	
-	// Increase image size
-	ModifyGraph width=283.465
-	DoUpdate
-	ModifyGraph width=0
-	DoUpdate
+	if (cmpstr(autoSaveImage,"no")==0)
+		AutoPositionWindow/E
+	endif
 	
 	// Return to starting data folder
 	SetDataFolder saveDF
@@ -364,6 +373,7 @@ Function img3dDisplay(imgWStr)
 	Make/N=(xSize,ySize) tempW
 	Duplicate/O tempW, citsImgW
 	KillWaves/Z tempW
+	WaveClear tempW
 	
 	// Set the image to be the z=0 slice of the 3d data set
 	citsImgW[][]= citsW[p][q][0]
@@ -396,15 +406,16 @@ Function imgGraphPretty(graphName)
 	endif
 	
 	// Modify image size
-	ModifyGraph/W=$graphName  width=200
-	//DoUpdate // this resizes the graph window.  The following line make the graph resizable again.
+	//ModifyGraph/W=$graphName  width=200
+	ModifyGraph width=283.465
 	ModifyGraph/W=$graphName  height={Aspect,1}
 	ModifyGraph/W=$graphName  fSize=9,font="Arial"
 	ModifyGraph/W=$graphName  axThick=0.8
 	ModifyGraph/W=$graphName  standoff=0
+	ModifyGraph/W=$graphName height={Aspect,1}
 	DoUpdate
-	ModifyGraph/W=$graphName width=0,height={Aspect,1}
-	DoUpdate	
+	ModifyGraph width=0
+	DoUpdate
 End
 
 
@@ -845,3 +856,20 @@ Function CloneWindowCopyData([win,name,times])
     SetDataFolder $curr_folder
 End
 
+
+
+
+
+/// @brief Return the amount of free memory in GB
+///  Thomas Braun
+Function GetFreeMemory()
+    variable freeMem
+
+#if defined(IGOR64)
+    freeMem = NumberByKey("PHYSMEM", IgorInfo(0)) - NumberByKey("USEDPHYSMEM", IgorInfo(0))
+#else
+    freeMem = NumberByKey("FREEMEM", IgorInfo(0))
+#endif
+
+    return freeMem / 1024 / 1024 / 1024
+End

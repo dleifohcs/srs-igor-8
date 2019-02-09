@@ -161,6 +161,9 @@ Menu "STM", dynamic
 			"Batch process point STS folder", quickScript("STSstandard")
 		End
 		"-"
+		"Load all images in a folder", autoLoadImages("no")
+		"Process all images in a folder to JPEG", autoLoadImages("yes")
+		"-"
 		Submenu "Global Programme Control"
 			"Force regeneration of control variables", createSRScontrolvariables(forced="yes")
 			"-"
@@ -633,3 +636,14 @@ Function setControlMenuItemCITSKappa()
 	endif
 	CITSKappa = kappa
 End
+
+Function autoLoadImages(autosaveStr)
+	String autosaveStr
+	SVAR autoSaveImage = root:WinGlobals:SRSSTMControl:autoSaveImage
+	String currentAutoSaveStr = autoSaveImage
+
+	autosaveImage = autosaveStr  // set global autosave variable according to the menu choice
+	SRSAutoLoader()		// load the images from the folder
+ 	autosaveImage = currentAutoSaveStr  //reset the global autosave variable to what it was before calling this function
+End
+		

@@ -2313,6 +2313,7 @@ Function/S FlatRenameWaveAndDF()
 		Make/O/D  $Wname
 		Duplicate/O dataW, $Wname
 		KillWaves dataW
+		WaveClear dataW
 		
 		Wave dataR
 		
@@ -2332,6 +2333,7 @@ Function/S FlatRenameWaveAndDF()
 			Make/O/D  $Wname
 			Duplicate/O dataR, $Wname
 			KillWaves dataR
+			WaveClear dataR
 		
 		endif
 		
@@ -2422,6 +2424,7 @@ Function/S FlatRenameWaveAndDF()
 		Duplicate/O dataBD, $nameBD
 		
 		KillWaves dataFU, dataBU, dataFD, dataBD
+		WaveClear dataFU, dataBU, dataFD, dataBD
 	
 	endif
 	
@@ -2436,6 +2439,15 @@ Function/S FlatRenameWaveAndDF()
 	MoveDataFolder expt_elements, matrix_info
 	if ( DataFolderExists( "Experiment_Element_deploy_count" ) )
 		MoveDataFolder Experiment_Element_deploy_count, matrix_info
+	endif
+	
+	if (cmpstr(autoSaveImage,"yes")==0)
+		//autosaving so delete waves that otherwise end up chewing memory
+		SetDataFolder matrix_info
+		SetDataFolder raw_data
+		Wave raw_dataW
+		KillWaves raw_dataW
+		WaveClear raw_dataW
 	endif
 	
 	// move to root DF
@@ -3975,3 +3987,91 @@ Print dummyStr
 	KillDataFolder/Z root:WOS
 	SetDataFolder root:$fileNameForWaves
 End
+
+
+
+
+
+
+
+
+//This function automatically loads all files in a folder
+function SRSAutoLoader()
+	//initialize loop variable
+   variable i=0
+   string fname           
+    
+   //Ask the user to identify a folder on the computer
+   getfilefolderinfo/Z=2/Q/D
+    
+   if( V_Flag == 0 )
+         	
+  		//Store the folder that the user has selected as a new symbolic path in IGOR called cgms
+  	  	newpath/O cgms S_path
+   	 	string/G path = S_path
+
+   	 	//Create a list of .z_flat files
+   	 	string filelist= indexedfile(cgms,-1,".z_flat")
+		variable numberofimages = itemsinlist(filelist)
+		Print "Total number of images to load = ", numberofimages	
+		
+   	 	// Break the list into smaller lists - run automatically but change DF in between groups.
+   	 	Variable lengthOfList = 50
+   	 	Variable numberOfLists = round(numberofimages / lengthOfList) + 2
+   		variable loadindex = 0
+   		String loadList = ""
+ 
+   		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
+   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
+   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
+   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
+   	 		loadList = SplitList(filelist,lengthOfList,loadIndex)
+   	 		// create new DF.  This helps with memory and makes loading MUCH faster. 
+   	 		NewDataFolder/S $("root:ListLoad"+num2str(loadindex))
+   	 		LoadSomeImages(path,filelist)
+   	 		KillDataFolder/Z $("root:ListLoad"+num2str(loadindex))
+   		endfor
+
+
+
+   	 	
+   	 	// Break the list into smaller lists - and make command line commands for user to execute manually
+   	 	// Create a command line command to separately load the lists
+ //  	 	Variable lengthOfList = 200
+ //  	 	Variable numberOfLists = round(numberofimages / lengthOfList) + 2
+  // 		variable loadindex = 0
+ //  		String loadList = ""
+ //  		String commandLine = "\nString/G root:WinGlobals:SRSSTMControl:autoSaveImage=\"yes\""
+   //		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
+  // 	 		loadList = SplitList(filelist,lengthOfList,loadIndex)
+   	// 		String/G $("fileListStr_"+num2str(loadindex)) = loadList
+   	// 		commandLine = AddListItem("\nLoadSomeImages(path,fileListStr_"+num2str(loadindex)+")",commandLine,";",99999999)
+  // 		endfor
+ //  		commandLine = AddListItem("\nString/G root:WinGlobals:SRSSTMControl:autoSaveImage=\"no\"",commandLine,";",99999999)
+//   		Print " "
+   	//	Print " "
+   //		Print " !!!! PLEASE COPY THE LINES BELOW AND PASTE THE ENTIRE THING INTO THE COMMAND LINE !!!!"
+  // 		Print " "
+ //  		Print " "
+//   		Print commandLine
+   	else 
+   		Print "User cancelled file load" // user canceled
+   	endif
+end
+
+
+Function LoadSomeImages(path,filelist)
+	String path,fileList
+	String fname
+	Variable i = 0
+	variable numberofimages = itemsinlist(filelist)
+	do
+   	   	//store the ith name in the list into wname.
+   	   	fname = stringfromlist(i,filelist)
+  		SRSLoadData(path,fname)
+      	i += 1          //move to next file
+      Print "Available memory = ", GetFreeMemory() - 12
+   	while(i<numberofimages)          //end when all files are processed.
+   	SetDataFolder root:
+End
+

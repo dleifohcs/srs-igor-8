@@ -824,3 +824,52 @@ Function roundSignificant(val,N)	// round val to N significant figures
 	tens = 10^(N-floor(log(val))-1)
 	return is*round(val*tens)/tens
 End
+
+
+
+Function/S SplitList(list,itemsPerSplit,splitnum)
+	String list
+	Variable itemsPerSplit, splitnum
+	
+	Variable numItems = itemsInList(list)  // number of items in original list
+	Variable numSplits = (numItems / itemspersplit) + 1  // how many lists there will be in teh end based on length of each new list (itemsPerSplit)
+	if (numSplits - round(numSplits) != 0)  // 
+		//Print "WARNING: non integer number of splits.  might break"	
+	endif
+	
+	if ( splitnum > numSplits )
+		Print "Error: requested split number greater than available in the list"
+		return "Error: requested split number greater than available in the list"
+	elseif ( splitnum < 1 ) 
+		Print "Error: first element is number 1; cannot request split < 0"
+		return "Error: first element is number 1; cannot request split < 0"
+	endif
+	
+	Variable index = 0
+	Variable splitNumber = 0
+	Variable splitIndex = 0
+	String newList = ""
+	
+	for ( index=0;index<numItems;index+=1 )
+		newList = AddListItem(StringFromList(index,list),newList,";",999999999999)
+		splitIndex += 1
+		if ( splitIndex == itemsPerSplit )
+			splitNumber += 1
+			if ( splitNumber == splitnum )
+				break
+			else
+				splitIndex = 0
+				newList = ""
+			endif
+		endif
+	endfor
+	
+	// Reverse order
+//	String returnList = ""
+//	numItems = itemsInList(newlist)
+//	for ( index=0;index<numItems;index+=1 )
+//		returnList = AddListItem(StringFromList(index,newlist),returnList)
+//	endfor
+	
+	return newList
+End

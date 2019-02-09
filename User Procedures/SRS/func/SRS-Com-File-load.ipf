@@ -4029,10 +4029,15 @@ end
 
 Function createProgressBar()
 	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,193)
-	ValDisplay valdisp0,pos={18,32},size={342,18},limits={0,100,0},barmisc={0,0}
+	ValDisplay valdisp0,pos={18,22},size={342,18},limits={0,100,0},barmisc={0,0}
 	ValDisplay valdisp0,value= _NUM:0
 	ValDisplay valdisp0,highColor=(0,65535,0)
-	Button bStop,pos={375,32},size={50,20},title="Stop"
+	TitleBox tb, pos={18,55},size={80,18},align=0,fixedSize=1,anchor=LT,frame=0,title="Time remaining: "
+	TitleBox tb2, pos={135,55},size={20,18},align=0,fixedSize=1,anchor=LT,frame=0,title="min"
+	ValDisplay valdispTime, pos={100,55},size={25,18},anchor=LT
+	ValDisplay valdispTime, value= _NUM:0
+	
+	Button bStop,pos={375,22},size={50,20},title="Abort"
 	DoUpdate /W=ProgressPanel /E=1	// mark this as our progress window
 End
 
@@ -4042,19 +4047,45 @@ Function LoadSomeImages(path,filelist)
 	Variable i = 0
 	variable numberofimages = itemsinlist(filelist)
 	
+	// Variable for timing
+	Variable thetime
+	Variable thelasttime 
+	Variable elapsedtime 
+	Variable averagetime 
+	Variable timeleft
+	Variable avgWindow = 20
+	Make/N=(avgWindow) timeAvgWave
+	Wave timeAvgWave
+	timeAvgWave = (0 * timeAvgWave) + 1
+	
+	
 	// create progress bar and associated counter
 	createProgressBar()
 	Variable progBarCounter = 0
 	Variable progBarInc = 100/ numberOfImages
 	do
+		thetime = datetime
    	   	//store the ith name in the list into wname.
    	   	fname = stringfromlist(i,filelist)
   		SRSLoadData(path,fname)
       	i += 1          //move to next file
-//      Print "Available memory = ", GetFreeMemory() - 12
+      Print "Available memory = ", GetFreeMemory() - 12
+      
+      thelasttime = thetime
+      thetime = datetime
+      elapsedtime = thetime - thelasttime
+     	addToArrayWithShuffle(elapsedtime,timeAvgWave)
+      timeleft = round(((numberofimages - i) * averagetime)/60)
+ 		averagetime = Sum(timeAvgWave)/avgWindow  
+//Print "elapsedtime = ", elapsedtime
+//Print "i = ", i
+//Print "images remaining = ", numberofimages - i
+//Print "averagetime = ", averagetime
+//Print "timeleft = ", timeleft    
       
       // Update the progress bar
    	 		ValDisplay valdisp0,value= _NUM:progBarCounter+1,win=ProgressPanel
+   	 		ValDisplay valdispTime,value= _NUM:timeleft,win=ProgressPanel
    	 		progBarCounter += progBarInc
 			DoUpdate /W=ProgressPanel
 			if( V_Flag == 2 )	// we only have one button and that means stop
@@ -4065,3 +4096,28 @@ Function LoadSomeImages(path,filelist)
    	KillWindow ProgressPanel
    	SetDataFolder root:
 End
+
+// Function for adding an item to the beginning of a wave adn shuffling all other values along. The last value is lost.
+Function addToArrayWithShuffle(item,array)
+	Variable item 
+	Wave array
+	
+	WaveStats/Q array
+	Variable waveLen = V_npnts
+	
+	Variable i
+	
+	i=waveLen-1
+	do
+		array[i] = array[i-1]
+		i+=-1
+	while (i > 0)
+	array[0] = item
+	// display the array
+	i=0
+	do
+		print i, array[i]
+		i+=1
+	while (i < waveLen)
+End 
+	

@@ -4014,23 +4014,41 @@ function SRSAutoLoader()
    	 	string filelist= indexedfile(cgms,-1,".z_flat")
 		variable numberofimages = itemsinlist(filelist)
 		Print "Total number of images to load = ", numberofimages	
+
+		LoadSomeImages(path,fileList)		
 		
    	 	// Break the list into smaller lists - run automatically but change DF in between groups.
-   	 	Variable lengthOfList = 50
-   	 	Variable numberOfLists = round(numberofimages / lengthOfList) + 2
-   		variable loadindex = 0
-   		String loadList = ""
- 
-   		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
-   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
-   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
-   			Print " ***************** STARTING LOAD LOOP ******************** ", loadindex, " of ", numberoflists
-   	 		loadList = SplitList(filelist,lengthOfList,loadIndex)
-   	 		// create new DF.  This helps with memory and makes loading MUCH faster. 
-   	 		NewDataFolder/S $("root:ListLoad"+num2str(loadindex))
-   	 		LoadSomeImages(path,filelist)
-   	 		KillDataFolder/Z $("root:ListLoad"+num2str(loadindex))
-   		endfor
+ //  	 	Variable lengthOfSubList = 5
+ //  	 	Variable numberOfLists = ceil(numberofimages / lengthOfSubList)  // ceil is like round but always gives the integer greater
+ //  		variable loadindex = 0
+ //  		String loadList = ""
+ 	
+ 	
+ 		// Create a progress bar 
+// 		createProgressBar()
+// 		Variable progressIndex, progressMax, progressInc
+// 		progressIndex = 0;
+// 		progressMax = 100;
+// 		progressInc = progressMax / numberOfLists;
+ 		
+// 		Print "progress inc", progressInc
+ 			
+//   		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
+ //  			Print "***$*$*$*$*$*$*$*$", loadindex, numberoflists
+  // 	 		loadList = SplitList(filelist,lengthOfSubList,loadIndex)
+   	// 		// create new DF.  This helps with memory and makes loading MUCH faster. 
+//   	 		NewDataFolder/S $("root:ListLoad"+num2str(loadindex))
+ //  	 		LoadSomeImages(path,loadList)
+ //  	 		KillDataFolder/Z $("root:ListLoad"+num2str(loadindex))
+   	 		// Update the progress bar
+ //  	 		ValDisplay valdisp0,value= _NUM:progressIndex+1,win=ProgressPanel
+  // 	 		progressIndex += progressInc
+  // 	 		Print "***************prog bar", progressIndex
+//			DoUpdate /W=ProgressPanel
+//					if( V_Flag == 2 )	// we only have one button and that means stop
+//			break
+//		endif
+ //  		endfor
 
 
 
@@ -4059,19 +4077,62 @@ function SRSAutoLoader()
    	endif
 end
 
+Function createProgressBar()
+	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,193)
+	ValDisplay valdisp0,pos={18,32},size={342,18},limits={0,100,0},barmisc={0,0}
+	ValDisplay valdisp0,value= _NUM:0
+	ValDisplay valdisp0,highColor=(0,65535,0)
+	Button bStop,pos={375,32},size={50,20},title="Stop"
+	DoUpdate /W=ProgressPanel /E=1	// mark this as our progress window
+End
 
 Function LoadSomeImages(path,filelist)
 	String path,fileList
 	String fname
 	Variable i = 0
 	variable numberofimages = itemsinlist(filelist)
+	
+	// create progress bar and associated counter
+	createProgressBar()
+	Variable progBarCounter = 0
+	Variable progBarInc = 100/ numberOfImages
 	do
    	   	//store the ith name in the list into wname.
    	   	fname = stringfromlist(i,filelist)
   		SRSLoadData(path,fname)
       	i += 1          //move to next file
       Print "Available memory = ", GetFreeMemory() - 12
+      
+      // Update the progress bar
+   	 		ValDisplay valdisp0,value= _NUM:progBarCounter+1,win=ProgressPanel
+   	 		progBarCounter += progBarInc
+			DoUpdate /W=ProgressPanel
+			if( V_Flag == 2 )	// we only have one button and that means stop
+				KillWindow ProgressPanel
+				break
+			endif
    	while(i<numberofimages)          //end when all files are processed.
+   	KillWindow ProgressPanel
    	SetDataFolder root:
 End
 
+//Function LoadSomeImagesMemoryOptimised(path,filelist)
+//	String path,fileList
+//	String fname
+//	Variable i = 0
+//	variable numberofimages = itemsinlist(filelist)
+//	String newDF=""
+//	Variable DFCounter = 0
+//	Variable DFIndex = 0
+//	do
+//		// make DF for loading
+//		ndewDF="root:tmp_"+num2str(DFCounter)
+//		SetDataFolder/S $newDF
+//		DFCounter+=1
+ //  	   	//store the ith name in the list into wname.
+  // 	   	fname = stringfromlist(i,filelist)
+  //		SRSLoadData(path,fname)
+   //   	i += 1          //move to next file
+    //  Print "Available memory = ", GetFreeMemory() - 12
+ //  	while(i<numberofimages)          //end when all files are processed.
+// End

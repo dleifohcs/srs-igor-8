@@ -905,8 +905,11 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	String saveDF = GetDataFolder(1)
 	
 	// Make temporary DF to load data into (will rename later)
-	KillDataFolder/Z root:FlatFile
-	NewDataFolder/O/S root:FlatFile
+	//KillDataFolder/Z root:FlatFile
+	
+	variable randomNumber = 1e6*abs(enoise(1))
+	String FlatDFStr = "FlatFile"+num2istr(randomNumber)
+	NewDataFolder/O/S root:$(FlatDFStr)
 	
 	Variable i, j, k		// used in for loops
 	Variable refNum		// used for the file identification
@@ -969,7 +972,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// New DF for channel description
-    	NewDataFolder/O/S root:FlatFile:axes
+    	NewDataFolder/O/S root:$(FlatDFStr):axes
     	
 	// Read axis count
 	Variable/G axis_count;		FBinRead/F=3/U refNum, axis_count  // read how many axes exist in file
@@ -1033,12 +1036,12 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
             endfor // j
             
             // Back to axes DF
-            SetDataFolder root:FlatFile:axes
+            SetDataFolder root:$(FlatDFStr):axes
     
       endfor	// i
       
       // Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
       
 	// -----------------------------------------------
 	// SECTION 3: Channel Description
@@ -1050,7 +1053,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 
 	// New DF for channel description
-    	NewDataFolder/O/S root:FlatFile:channel
+    	NewDataFolder/O/S root:$(FlatDFStr):channel
 
 	// Read channel name
     	String/G channel_name = ReadFlatStr(refNum)
@@ -1085,7 +1088,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif
 
 	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	// -----------------------------------------------
 	// SECTION 4: Creation Information
@@ -1097,7 +1100,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Create DF
-    	NewDataFolder/O/S root:FlatFile:creation_info
+    	NewDataFolder/O/S root:$(FlatDFStr):creation_info
     	
 	// Read  date and time stamp 
     	Variable timestamp;			FBinRead/F=3 refNum, timestamp 
@@ -1109,7 +1112,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
     	String/G comment = ReadFlatStr(refNum)
 
 	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	// -----------------------------------------------
 	// SECTION 5: Raw Data 
@@ -1121,7 +1124,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Create DF
-    	NewDataFolder/O/S root:FlatFile:raw_data
+    	NewDataFolder/O/S root:$(FlatDFStr):raw_data
     	
     	Variable/G bricklet_size; 		FBinRead/F=3 refNum, bricklet_size
     	Variable data_count; 			FBinRead/F=3 refNum, data_count
@@ -1139,7 +1142,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	FBinRead/F=3 refNum, raw_dataW
   
 	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	// -------------------------------------------------
 	// SECTION 6: Sample position information
@@ -1151,7 +1154,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Create DF
-    	NewDataFolder/O/S root:FlatFile:sample_position
+    	NewDataFolder/O/S root:$(FlatDFStr):sample_position
     
     	// Read offset informations
     	Variable/G offset_count; 		FBinRead/F=3 refNum, offset_count
@@ -1177,7 +1180,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
     	endif
     	
     	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	// -------------------------------------------------
 	// SECTION 7: Experiment Information
@@ -1189,7 +1192,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Create DF
-	NewDataFolder/O/S root:FlatFile:expt_info
+	NewDataFolder/O/S root:$(FlatDFStr):expt_info
 	
     	String/G Experiment_Name = ReadFlatStr(refNum)
     	String/G Experiment_Version = ReadFlatStr(refNum)
@@ -1204,7 +1207,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	Variable/G scan_cycle;		FBinRead/F=3 refNum, scan_cycle
 	
 	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	// ----------------------------------------------------------
 	// SECTION 8: Experiment Element Parameter List
@@ -1216,7 +1219,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Create DF
-	NewDataFolder/O/S root:FlatFile:expt_elements
+	NewDataFolder/O/S root:$(FlatDFStr):expt_elements
 
 	// Read Experiment Element Parameters 
     	Variable Experiment_Element_count;		FBinRead/F=3 refNum, Experiment_Element_count
@@ -1252,12 +1255,12 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 		endfor // j loop
   		
   		// Return to element paramers DF
-		SetDataFolder root:FlatFile:expt_elements
+		SetDataFolder root:$(FlatDFStr):expt_elements
 		
 	endfor  // i loop
 	
  	// Return to top level DF 
-	SetDataFolder root:FlatFile
+	SetDataFolder root:$(FlatDFStr)
 	
 	
 	// -------------------------------------------------------------------------
@@ -1274,7 +1277,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	if ( Experiment_Element_deploy_count > 0 )
 	
 		// Create DF
-		NewDataFolder/O/S root:FlatFile:expt_element_deploy_params
+		NewDataFolder/O/S root:$(FlatDFStr):expt_element_deploy_params
 	
 		Make/O/T/N=(Experiment_Element_deploy_count) Deploy_Parameter_List
 
@@ -1291,12 +1294,12 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
            	 	Par_deploy_valW[j] = ReadFlatStr(refNum)
 
 			// Move back in DF
-			SetDataFolder root:FlatFile:expt_element_deploy_params
+			SetDataFolder root:$(FlatDFStr):expt_element_deploy_params
 		
 		endfor
 	
  		// Return to top level DF 
-		SetDataFolder root:FlatFile
+		SetDataFolder root:$(FlatDFStr)
 	
 	endif
 	
@@ -1311,8 +1314,10 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	if ( VERBOSE )
 		Print "Converting data to physical values"
 	endif 
+
 	
 	// Convert RAW data to PHYSICAL data and increase precision to double precision floating point
+	SetDataFolder root:$(FlatDFStr)
 	FlatRaw2Phys()
 	
 	// VERBOSE
@@ -1321,6 +1326,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Redimension the axes 
+	SetDataFolder root:$(FlatDFStr)
 	FlatRedimensionAxes()
 	
 	// VERBOSE
@@ -1415,9 +1421,6 @@ Function FlatRaw2Phys()
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
 	
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
 	// Move to channel DF that has the transfer function information
 	SetDataFolder channel
 	
@@ -1443,7 +1446,7 @@ Function FlatRaw2Phys()
 	endswitch
 	
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Move to channel DF that has the transfer function information
 	SetDataFolder raw_data
@@ -1488,9 +1491,9 @@ Function FlatRedimensionAxes()
 	
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
-	
+
 	// Move to axes DF
-	SetDataFolder root:FlatFile:axes
+	SetDataFolder axes
 	
 	Variable/G axis_count
 	
@@ -1502,6 +1505,9 @@ Function FlatRedimensionAxes()
 	for ( i=0; i<axes_names_len; i+=1)
 		axes_names_short[i] = EverythingAfterLastColon(axes_names[i])
 	endfor
+	
+	// Back to top level flat file DF
+	SetDataFolder saveDF
 
 	// decide what do to for different number of axes
 	switch ( axis_count )
@@ -1541,9 +1547,6 @@ Function FlatFile1DProcess()
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
 	
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
 	SetDataFolder axes
 	String saveDFaxes = GetDataFolder(1)
 	
@@ -1563,13 +1566,14 @@ Function FlatFile1DProcess()
 	String/G unit
 	
 	// move to raw data DF 
-	SetDataFolder root:FlatFile:raw_data
+	SetDataFolder saveDF
+	SetDataFolder raw_data
 	
 	Variable/G bricklet_size
 	Wave phys_dataW
 	
 	// root data dir
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Make data wave
 	Duplicate/O phys_dataW, dataW 
@@ -1617,10 +1621,7 @@ Function FlatFile2DProcess()
 	
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
-	
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
+
 	SetDataFolder axes
 	String saveDFaxes = GetDataFolder(1)
 	
@@ -1654,7 +1655,8 @@ Function FlatFile2DProcess()
 	String y_unit = unit
 	
 	// Move to raw data DF
-	SetDataFolder root:FlatFile:raw_data 
+	SetDataFolder saveDF
+	SetDataFolder raw_data 
 	
 	Variable/G bricklet_size
 	Wave phys_dataW
@@ -1691,7 +1693,7 @@ Function FlatFile2DProcess()
 	endif
 	
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Make waves for each of the four images
 	Make/D/O/N=(xWidth,yWidth) dataFU
@@ -1744,7 +1746,8 @@ Function FlatFile2DProcess()
 	// Clean up
 	
 	// Move to raw data DF
-	SetDataFolder root:FlatFile:raw_data 
+	SetDataFolder saveDF
+	SetDataFolder raw_data 
 	
 	KillWaves phys_dataW
 	// Move back to original DF
@@ -1766,10 +1769,12 @@ Function FlatFile3DProcess()
 	String saveDF = GetDataFolder(1)
 	
 	// Move to axes DF
-	SetDataFolder root:FlatFile:axes
+	SetDataFolder saveDF
+	SetDataFolder axes
 
 	// V (for CITS)
-	SetDataFolder root:FlatFile:axes:axis_0
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_0
 	
 	Variable/G clock_count
 	Variable/G mirrored
@@ -1784,7 +1789,8 @@ Function FlatFile3DProcess()
 	String V_unit = unit
 	
 	// Move to table set 0 DF (x-axis) 
-	SetDataFolder root:FlatFile:axes:axis_0:tableset_0
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_0:tableset_0
 	
 	// Interval 0
 	SetDataFolder interval_0
@@ -1798,7 +1804,8 @@ Function FlatFile3DProcess()
 	Variable x_0_step = step
 	
 	// Return to table set 0 DF (x-axis)
-	SetDataFolder root:FlatFile:axes:axis_0:tableset_0
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_0:tableset_0
 	
 	//Determine if a second interval exists (e.g., for dual mode CITS)
 	
@@ -1821,7 +1828,8 @@ Function FlatFile3DProcess()
 	endif
 		
 	// Move to table set 1 DF (y-axis) 
-	SetDataFolder root:FlatFile:axes:axis_0:tableset_1
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_0:tableset_1
 	
 	// Interval 0
 	SetDataFolder interval_0
@@ -1835,7 +1843,8 @@ Function FlatFile3DProcess()
 	Variable y_0_step = step	
 	
 	// Get next tableset information if exists - e.g., if the "image down" CITS was acquired
-	SetDataFolder root:FlatFile:axes:axis_0:tableset_1
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_0:tableset_1
 	
 	// create variables for the down scan and set to 1 until determined whether or not these exist
 	Variable y_1_start = 0
@@ -1854,7 +1863,8 @@ Function FlatFile3DProcess()
 	endif
 	
 	// X (likely)
-	SetDataFolder root:FlatFile:axes:axis_1
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_1
 	Variable/G clock_count
 	Variable/G mirrored
 	Variable/G phys_start
@@ -1868,7 +1878,8 @@ Function FlatFile3DProcess()
 	String x_unit = unit
 	
 	// Y (likely)
-	SetDataFolder root:FlatFile:axes:axis_2
+	SetDataFolder saveDF
+	SetDataFolder axes:axis_2
 	Variable/G clock_count
 	Variable/G mirrored
 	Variable/G phys_start
@@ -1886,7 +1897,8 @@ Function FlatFile3DProcess()
 	y_phys_inc = y_phys_inc * y_0_step
 	
 	// chage to raw data DF
-	SetDataFolder root:FlatFile:raw_data	
+	SetDataFolder saveDF
+	SetDataFolder raw_data	
 	
 	// Copy the physically scaled data to a new wave called dataW
 	Wave phys_dataW
@@ -1911,7 +1923,7 @@ Function FlatFile3DProcess()
 	String data_unit = StringByKey("DUNITS", data_information)	
 	
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Make waves for each of the four images
 	Make/O/N=(x_0_width,y_0_width,V_width) dataFU
@@ -1980,7 +1992,8 @@ Function FlatFile3DProcess()
 	
 	// Clean up
 	// chage to raw data DF
-	SetDataFolder root:FlatFile:raw_data	
+	SetDataFolder saveDF
+	SetDataFolder raw_data	
 	KillWaves phys_dataW
 	
 	// Move back to original DF
@@ -1999,9 +2012,6 @@ Function FlatAddInfo2Wave()
 	//-----------------------------------------------
 	// GET THE TIME STAMP AND COMMENT
 	
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
 	// Move to time stamp DF
 	SetDataFolder creation_info
 
@@ -2011,10 +2021,8 @@ Function FlatAddInfo2Wave()
 	//-----------------------------------------------
 	// GET THE CHANNEL NAME
 	
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
 	// Move to time stamp DF
+	SetDataFolder saveDF
 	SetDataFolder channel
 
 	String/G channel_name
@@ -2023,7 +2031,7 @@ Function FlatAddInfo2Wave()
 	// GET THE EXPERIMENT INFO (SCAN # etc.)
 	
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Move to time stamp DF
 	SetDataFolder expt_info
@@ -2039,7 +2047,7 @@ Function FlatAddInfo2Wave()
 	// GET THE BIAS VALUE
 
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Move DF to gap voltage
 	SetDataFolder expt_elements
@@ -2086,14 +2094,11 @@ Function FlatAddInfo2Wave()
 	String V_unit= V_unitW[V_num]
 	String Valt_unit = V_unitW[Valt_num]
 
-	// Change to the top level DF
-	SetDataFolder root:FlatFile
-	
 	//------------------------------------
 	// GET THE REGULATOR VALUE
 	
 	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	// Move DF to tunnelling current
 	SetDataFolder expt_elements
@@ -2143,7 +2148,7 @@ Function FlatAddInfo2Wave()
 	String Regalt_unit = Reg_unitW[Regalt_num]
 
 	// Change to the top level DF
-	SetDataFolder root:FlatFile
+	SetDataFolder saveDF
 	
 	//-------------------------------------------------
 	// Add the information to the wave notes
@@ -2278,9 +2283,9 @@ End
 //-------------------------------------	--------------------------------------------------------------------
 Function/S FlatRenameWaveAndDF()
 
-	// Move to FlatFile DF
-	SetDataFolder root:FlatFile
-	
+	// Save the current DF
+	String saveDF = GetDataFolder(1)
+
 	String DFname = ""
 	
 	SVAR autoSaveImage = root:WinGlobals:SRSSTMControl:autoSaveImage
@@ -2482,7 +2487,7 @@ Function/S FlatRenameWaveAndDF()
 			NewDataFolder $DFname
 		endif
 	
-		SetDataFolder root:FlatFile
+		SetDataFolder saveDF
 		
 		String waveNameList = WaveList("*",";","")
 		Variable numWaves = itemsInList(waveNameList,";")
@@ -2491,14 +2496,14 @@ Function/S FlatRenameWaveAndDF()
 			waveNameStr = StringFromList(i,waveNameList,";")
 			MoveWave $waveNameStr, root:MyData:
 		endfor
-		KillDataFolder root:FlatFile	
+		KillDataFolder saveDF
 
 		SetDataFolder root:
 
 	else
 		// rename the DF specific to this data
 		SetDataFolder root:
-		RenameDataFolder FlatFile, $DFname
+		RenameDataFolder $saveDF, $DFname
 	endif
 	
 	// return DF name
@@ -4016,62 +4021,7 @@ function SRSAutoLoader()
 		Print "Total number of images to load = ", numberofimages	
 
 		LoadSomeImages(path,fileList)		
-		
-   	 	// Break the list into smaller lists - run automatically but change DF in between groups.
- //  	 	Variable lengthOfSubList = 5
- //  	 	Variable numberOfLists = ceil(numberofimages / lengthOfSubList)  // ceil is like round but always gives the integer greater
- //  		variable loadindex = 0
- //  		String loadList = ""
- 	
- 	
- 		// Create a progress bar 
-// 		createProgressBar()
-// 		Variable progressIndex, progressMax, progressInc
-// 		progressIndex = 0;
-// 		progressMax = 100;
-// 		progressInc = progressMax / numberOfLists;
- 		
-// 		Print "progress inc", progressInc
- 			
-//   		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
- //  			Print "***$*$*$*$*$*$*$*$", loadindex, numberoflists
-  // 	 		loadList = SplitList(filelist,lengthOfSubList,loadIndex)
-   	// 		// create new DF.  This helps with memory and makes loading MUCH faster. 
-//   	 		NewDataFolder/S $("root:ListLoad"+num2str(loadindex))
- //  	 		LoadSomeImages(path,loadList)
- //  	 		KillDataFolder/Z $("root:ListLoad"+num2str(loadindex))
-   	 		// Update the progress bar
- //  	 		ValDisplay valdisp0,value= _NUM:progressIndex+1,win=ProgressPanel
-  // 	 		progressIndex += progressInc
-  // 	 		Print "***************prog bar", progressIndex
-//			DoUpdate /W=ProgressPanel
-//					if( V_Flag == 2 )	// we only have one button and that means stop
-//			break
-//		endif
- //  		endfor
-
-
-
-   	 	
-   	 	// Break the list into smaller lists - and make command line commands for user to execute manually
-   	 	// Create a command line command to separately load the lists
- //  	 	Variable lengthOfList = 200
- //  	 	Variable numberOfLists = round(numberofimages / lengthOfList) + 2
-  // 		variable loadindex = 0
- //  		String loadList = ""
- //  		String commandLine = "\nString/G root:WinGlobals:SRSSTMControl:autoSaveImage=\"yes\""
-   //		for ( loadindex=1; loadindex < numberoflists; loadindex+=1 )
-  // 	 		loadList = SplitList(filelist,lengthOfList,loadIndex)
-   	// 		String/G $("fileListStr_"+num2str(loadindex)) = loadList
-   	// 		commandLine = AddListItem("\nLoadSomeImages(path,fileListStr_"+num2str(loadindex)+")",commandLine,";",99999999)
-  // 		endfor
- //  		commandLine = AddListItem("\nString/G root:WinGlobals:SRSSTMControl:autoSaveImage=\"no\"",commandLine,";",99999999)
-//   		Print " "
-   	//	Print " "
-   //		Print " !!!! PLEASE COPY THE LINES BELOW AND PASTE THE ENTIRE THING INTO THE COMMAND LINE !!!!"
-  // 		Print " "
- //  		Print " "
-//   		Print commandLine
+	
    	else 
    		Print "User cancelled file load" // user canceled
    	endif
@@ -4101,7 +4051,7 @@ Function LoadSomeImages(path,filelist)
    	   	fname = stringfromlist(i,filelist)
   		SRSLoadData(path,fname)
       	i += 1          //move to next file
-      Print "Available memory = ", GetFreeMemory() - 12
+//      Print "Available memory = ", GetFreeMemory() - 12
       
       // Update the progress bar
    	 		ValDisplay valdisp0,value= _NUM:progBarCounter+1,win=ProgressPanel
@@ -4115,24 +4065,3 @@ Function LoadSomeImages(path,filelist)
    	KillWindow ProgressPanel
    	SetDataFolder root:
 End
-
-//Function LoadSomeImagesMemoryOptimised(path,filelist)
-//	String path,fileList
-//	String fname
-//	Variable i = 0
-//	variable numberofimages = itemsinlist(filelist)
-//	String newDF=""
-//	Variable DFCounter = 0
-//	Variable DFIndex = 0
-//	do
-//		// make DF for loading
-//		ndewDF="root:tmp_"+num2str(DFCounter)
-//		SetDataFolder/S $newDF
-//		DFCounter+=1
- //  	   	//store the ith name in the list into wname.
-  // 	   	fname = stringfromlist(i,filelist)
-  //		SRSLoadData(path,fname)
-   //   	i += 1          //move to next file
-    //  Print "Available memory = ", GetFreeMemory() - 12
- //  	while(i<numberofimages)          //end when all files are processed.
-// End

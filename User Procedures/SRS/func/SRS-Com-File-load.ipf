@@ -4023,12 +4023,12 @@ function SRSAutoLoader()
 		String processingStartTimeStr = date()+", "+time()
 		Variable processingStartTime = datetime
 		
-		LoadSomeImages(path,fileList)		
+		Variable filesLoaded = LoadSomeImages(path,fileList)		
 		
 		String processingEndTimeStr = date()+", "+time()
 		Variable processingEndTime = datetime
 		Print "*************************************************************************"
-		Print "Total number of images processed: ", numberofimages
+		Print "Total number of images processed: ", filesLoaded, " of ", numberofimages
 		Print "Image processing started, ", processingStartTimeStr
 		Print "Image processing finished, ", processingEndTimeStr
 		Print "Total processing time, ", (processingEndTime - processingStartTime)/60, "minutes"
@@ -4039,7 +4039,8 @@ function SRSAutoLoader()
 end
 
 Function createProgressBar()
-	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,193)
+	DoWindow/K ProgressPanel
+	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,393)
 	ValDisplay valdisp0,pos={18,22},size={342,18},limits={0,100,0},barmisc={0,0}
 	ValDisplay valdisp0,value= _NUM:0
 	ValDisplay valdisp0,highColor=(0,65535,0)
@@ -4049,6 +4050,11 @@ Function createProgressBar()
 	ValDisplay valdispTime, value= _NUM:0
 	
 	Button bStop,pos={375,22},size={50,20},title="Abort"
+	
+	Wave allTimesWave
+	TitleBox tb3, pos={20,80},size={20,18},align=0,fixedSize=0,anchor=LT,frame=0,title="Image load time (if increasing restart Igor and/or try to free some memory)"
+	Display/HOST=ProgressPanel/W=(20,100,360,260) allTimesWave
+	
 	DoUpdate /W=ProgressPanel /E=1	// mark this as our progress window
 End
 
@@ -4070,7 +4076,6 @@ Function LoadSomeImages(path,filelist)
 	Make/O/N=(avgWindow) timeAvgWave
 	Wave timeAvgWave
 	timeAvgWave = (0 * timeAvgWave) + 1
-	
 	
 	// create progress bar and associated counter
 	createProgressBar()
@@ -4115,6 +4120,7 @@ Function LoadSomeImages(path,filelist)
 	// Display1D("allTimesWave")
    KillWaves allTimesWave
    WaveClear allTimesWave
+   Return i
 End
 
 // Function for adding an item to the beginning of a wave adn shuffling all other values along. The last value is lost.

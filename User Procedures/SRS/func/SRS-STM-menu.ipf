@@ -161,7 +161,7 @@ Menu "STM", dynamic
 			"Batch process point STS folder", quickScript("STSstandard")
 		End
 		"-"
-		"Load all images in a folder", autoLoadImages("no")
+		//"Load all images in a folder", autoLoadImages("no")
 		"Process all images in a folder to JPEG", autoLoadImages("yes")
 		"-"
 		Submenu "Global Programme Control"

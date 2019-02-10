@@ -162,7 +162,8 @@ Menu "STM", dynamic
 		End
 		"-"
 		//"Load all images in a folder", autoLoadImages("no")
-		"Process all images in a folder to JPEG", autoLoadImages("yes")
+		"Process all images in a folder to JPEG", autoLoadImages("yes","image")
+		"Process all I-V in a folder to JPEG", autoLoadImages("yes","IV")
 		"-"
 		Submenu "Global Programme Control"
 			"Force regeneration of control variables", createSRScontrolvariables(forced="yes")
@@ -637,13 +638,14 @@ Function setControlMenuItemCITSKappa()
 	CITSKappa = kappa
 End
 
-Function autoLoadImages(autosaveStr)
+Function autoLoadImages(autosaveStr,type)
 	String autosaveStr
+	String type // "image", "IV"
 	SVAR autoSaveImage = root:WinGlobals:SRSSTMControl:autoSaveImage
 	String currentAutoSaveStr = autoSaveImage
 
 	autosaveImage = autosaveStr  // set global autosave variable according to the menu choice
-	SRSAutoLoader()		// load the images from the folder
+	SRSAutoLoader(type)		// load the images from the folder
  	autosaveImage = currentAutoSaveStr  //reset the global autosave variable to what it was before calling this function
 End
 		

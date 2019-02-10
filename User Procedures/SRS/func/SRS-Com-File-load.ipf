@@ -4001,7 +4001,9 @@ End
 
 
 //This function automatically loads all files in a folder
-function SRSAutoLoader()
+function SRSAutoLoader(type)
+	String type // "image", "IV"
+	
 	//initialize loop variable
    variable i=0
    string fname    
@@ -4016,7 +4018,12 @@ function SRSAutoLoader()
    	 	string path = S_path
 
    	 	//Create a list of .z_flat files
-   	 	string filelist= indexedfile(cgms,-1,".z_flat")
+   	 	string filelist
+   	 	if ( cmpstr(type,"image") == 0)
+   	 	  	filelist= indexedfile(cgms,-1,".z_flat")
+   	 	elseif ( cmpstr(type,"IV") == 0)
+   	 		filelist= indexedfile(cgms,-1,".I(V)_flat")
+		endif
 		variable numberofimages = itemsinlist(filelist)
 		Print "Total number of images to load = ", numberofimages	
 

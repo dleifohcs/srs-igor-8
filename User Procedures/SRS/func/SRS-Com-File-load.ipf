@@ -4040,7 +4040,8 @@ end
 
 Function createProgressBar()
 	DoWindow/K ProgressPanel
-	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,393)
+//	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,393)
+	NewPanel /k=1 /N=ProgressPanel /W=(585,111,1039,193)
 	ValDisplay valdisp0,pos={18,22},size={342,18},limits={0,100,0},barmisc={0,0}
 	ValDisplay valdisp0,value= _NUM:0
 	ValDisplay valdisp0,highColor=(0,65535,0)
@@ -4051,9 +4052,9 @@ Function createProgressBar()
 	
 	Button bStop,pos={375,22},size={50,20},title="Abort"
 	
-	Wave allTimesWave
-	TitleBox tb3, pos={20,80},size={20,18},align=0,fixedSize=0,anchor=LT,frame=0,title="Image load time (if increasing restart Igor and/or try to free some memory)"
-	Display/HOST=ProgressPanel/W=(20,100,360,260) allTimesWave
+//	Wave allTimesWave
+//	TitleBox tb3, pos={20,80},size={20,18},align=0,fixedSize=0,anchor=LT,frame=0,title="Load time per image (if increasing restart Igor and/or try to free some memory)"
+//	Display/HOST=ProgressPanel/W=(20,100,360,260) allTimesWave
 	
 	DoUpdate /W=ProgressPanel /E=1	// mark this as our progress window
 End

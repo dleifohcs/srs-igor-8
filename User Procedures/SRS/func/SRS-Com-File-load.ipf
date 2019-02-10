@@ -4004,8 +4004,8 @@ End
 function SRSAutoLoader()
 	//initialize loop variable
    variable i=0
-   string fname           
-    
+   string fname    
+     
    //Ask the user to identify a folder on the computer
    getfilefolderinfo/Z=2/Q/D
     
@@ -4013,15 +4013,26 @@ function SRSAutoLoader()
          	
   		//Store the folder that the user has selected as a new symbolic path in IGOR called cgms
   	  	newpath/O cgms S_path
-   	 	string/G path = S_path
+   	 	string path = S_path
 
    	 	//Create a list of .z_flat files
    	 	string filelist= indexedfile(cgms,-1,".z_flat")
 		variable numberofimages = itemsinlist(filelist)
 		Print "Total number of images to load = ", numberofimages	
 
+		String processingStartTimeStr = date()+", "+time()
+		Variable processingStartTime = datetime
+		
 		LoadSomeImages(path,fileList)		
-	
+		
+		String processingEndTimeStr = date()+", "+time()
+		Variable processingEndTime = datetime
+		Print "*************************************************************************"
+		Print "Total number of images processed: ", numberofimages
+		Print "Image processing started, ", processingStartTimeStr
+		Print "Image processing finished, ", processingEndTimeStr
+		Print "Total processing time, ", (processingEndTime - processingStartTime)/60, "minutes"
+		Print "*************************************************************************"
    	else 
    		Print "User cancelled file load" // user canceled
    	endif
@@ -4054,7 +4065,9 @@ Function LoadSomeImages(path,filelist)
 	Variable averagetime 
 	Variable timeleft
 	Variable avgWindow = 20
-	Make/N=(avgWindow) timeAvgWave
+	Make/O/N=(numberofimages) allTimesWave
+	Wave allTimesWave
+	Make/O/N=(avgWindow) timeAvgWave
 	Wave timeAvgWave
 	timeAvgWave = (0 * timeAvgWave) + 1
 	
@@ -4069,11 +4082,12 @@ Function LoadSomeImages(path,filelist)
    	   	fname = stringfromlist(i,filelist)
   		SRSLoadData(path,fname)
       	i += 1          //move to next file
-      Print "Available memory = ", GetFreeMemory() - 12
+//Print "Available memory = ", GetFreeMemory() - 12
       
       thelasttime = thetime
       thetime = datetime
       elapsedtime = thetime - thelasttime
+      allTimesWave[i] = elapsedtime
      	addToArrayWithShuffle(elapsedtime,timeAvgWave)
       timeleft = round(((numberofimages - i) * averagetime)/60)
  		averagetime = Sum(timeAvgWave)/avgWindow  
@@ -4095,6 +4109,12 @@ Function LoadSomeImages(path,filelist)
    	while(i<numberofimages)          //end when all files are processed.
    	KillWindow ProgressPanel
    	SetDataFolder root:
+   	KillWaves timeAvgWave
+   	WaveClear timeAvgWave
+   	// The procedure saves each load time into an array that can be displayed using the code below.
+	// Display1D("allTimesWave")
+   KillWaves allTimesWave
+   WaveClear allTimesWave
 End
 
 // Function for adding an item to the beginning of a wave adn shuffling all other values along. The last value is lost.
@@ -4114,10 +4134,10 @@ Function addToArrayWithShuffle(item,array)
 	while (i > 0)
 	array[0] = item
 	// display the array
-	i=0
-	do
-		print i, array[i]
-		i+=1
-	while (i < waveLen)
+//	i=0
+//	do
+//		print i, array[i]
+//		i+=1
+//	while (i < waveLen)
 End 
 	

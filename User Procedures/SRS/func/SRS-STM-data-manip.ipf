@@ -1463,6 +1463,7 @@ Function subtractPlane(graphname,[ROI])
 	
 	// Clean up
 	KillWaves/Z imgWROI
+	WaveClear imgWROI
 	
 	// Return to saved data folder
 	SetDataFolder saveDF
@@ -1679,7 +1680,7 @@ Function subtractLinewise(graphname)
 	Variable xPts = DimSize(imgW,0)
 	Variable yPts = DimSize(imgW,1)
 	
-	KillWaves/Z lineWave
+	//KillWaves/Z lineWave
 	Make/O/N=(xPts) lineWave
 	Duplicate/O lineWave, linefitWave
 	
@@ -1696,6 +1697,9 @@ Function subtractLinewise(graphname)
 
 	// Clean up
 	KillWaves/Z lineWave, linefitWave, W_coef, W_sigma
+	WaveClear lineWave
+	WaveClear linefitWave
+	WaveClear imgW
 	
 	// Return to saved data folder
 	SetDataFolder saveDF

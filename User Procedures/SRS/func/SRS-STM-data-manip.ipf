@@ -1269,6 +1269,12 @@ Function createSRSControlVariables([forced])
 		autoSaveImage = "no"
 	endif
 	
+	// auto differentiate line traces
+	String/G autoDiff
+	if (strlen(autoDiff)==0)
+		autoDiff = "no"
+	endif
+	
 	// make a toggle for automatically updating image colour range or not *CURRENTLY NOT USED*
 	String/G autoUpdateImageColour
 	if (strlen(autoUpdateImageColour)==0)

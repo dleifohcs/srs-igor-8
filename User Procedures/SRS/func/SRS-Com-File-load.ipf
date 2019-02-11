@@ -901,6 +901,8 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	Variable RETAIN_MATRIX_INFO = 1  // set to 1 to keep all information loaded from the matrix file
 	// -------------------------------------------------------------------------------------------------------------------------------------------//
 	
+	SVAR autoDiff =  root:WinGlobals:SRSSTMControl:autoDiff
+	
 	// Save current DF
 	String saveDF = GetDataFolder(1)
 	
@@ -918,7 +920,10 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	String FullFileNameStr = pathStr+filenameStr
 	
 	String jpegpathStr = pathStr+":JPEG"
-	String jpegIVpathStr = pathStr+":JPEG_IV"
+	String jpegIVpathStr= pathStr+":JPEG_IV"
+	if ( cmpstr(autoDiff,"yes")==0 )
+		jpegIVpathStr = pathStr+":JPEG_dIdV"
+	endif
 	NewPath /Q/O dataDirectory, pathStr
 	NewPath /Q/O/C dataJPEGDirectory, jpegpathStr
 	NewPath /Q/O/C dataJPEGIVDirectory, jpegIVpathStr
@@ -3996,6 +4001,23 @@ End
 
 
 
+//This function automatically loads all files in a folder
+function SRSMenuLoadMatrixData()
+	
+	//initialize loop variable
+   variable i=0
+   string path, fname    
+     
+   //Ask the user to identify a folder on the computer
+   getfilefolderinfo/Z=2/Q
+   if( V_Flag == 0 && V_isFile==1 )	 	
+   		fname = ParseFilePath(0, S_path, ":", 1, 0)  // file
+   		path = ParseFilePath(1, S_path, ":", 1, 0)  // path
+		SRSLoadData(path,fname)
+	else
+		Print "Error: no valid file selected"
+	endif
+end
 
 
 
@@ -4131,7 +4153,7 @@ Function LoadSomeImages(path,filelist)
    Return i
 End
 
-// Function for adding an item to the beginning of a wave adn shuffling all other values along. The last value is lost.
+// Function for adding an item to the beginning of a wave and shuffling all other values along. The last value is lost.
 Function addToArrayWithShuffle(item,array)
 	Variable item 
 	Wave array

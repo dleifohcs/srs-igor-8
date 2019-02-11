@@ -28,6 +28,15 @@
 // Menu
 
 Menu "STM", dynamic
+		Submenu "Load Flat File Data"
+			"Load a Flat File image or spectroscopy file", SRSMenuLoadMatrixData()
+			"-"
+			"Load all Flat Files in a folder", autoLoadImages("no")
+			"-"
+			"Process all images in a folder to JPEG", autoLoadImages("yes","image")
+			"Process all I-V in a folder to JPEG", autoLoadImages("yes","IV")
+		End
+		"-"
 		Submenu "Display"
 			"Display 2D or 3D data/F10", displayData()
 			"Display all in data folder", displayAllData()
@@ -161,10 +170,6 @@ Menu "STM", dynamic
 			"Batch process point STS folder", quickScript("STSstandard")
 		End
 		"-"
-		//"Load all images in a folder", autoLoadImages("no")
-		"Process all images in a folder to JPEG", autoLoadImages("yes","image")
-		"Process all I-V in a folder to JPEG", autoLoadImages("yes","IV")
-		"-"
 		Submenu "Global Programme Control"
 			"Force regeneration of control variables", createSRScontrolvariables(forced="yes")
 			"-"
@@ -174,6 +179,8 @@ Menu "STM", dynamic
 			setControlMenuItem("autoBGnone"), setdefaultBackground("none")
 			setControlMenuItem("autoBGplane"), setdefaultBackground("plane")
 			setControlMenuItem("autoBGlinewise"), setdefaultBackground("linewise")	
+			"-"
+			setControlMenuItem("autoDiff"), toggleAutoDiff()
 			"-"
 			setControlMenuItem("stsAveragingNone"),  setdefaultSTSaveraging("none")
 			setControlMenuItem("stsAveraging3x3"),  setdefaultSTSaveraging("3x3")
@@ -221,6 +228,17 @@ Function toggleAutoDisplay()
 		// turn off the MyData folder option if doing autodisplay
 		SVAR commonDataFolder = root:WinGlobals:SRSSTMControl:commonDataFolder
 		commonDataFolder = "no"
+	endif
+End
+
+// set global variable for programme control
+Function toggleAutoDiff()
+	createSRSControlVariables()
+	SVAR autoDiff = root:WinGlobals:SRSSTMControl:autoDiff
+	if (cmpstr(autoDiff,"yes")==0)
+		autoDiff = "no"
+	else
+		autoDiff = "yes"
 	endif
 End
 
@@ -407,7 +425,19 @@ Function/S setControlMenuItem(controlVariable)
 					break
 			endswitch
 			break		
-		
+		case "autoDiff":
+			strswitch(state)
+				case "yes":
+					returnStr = "Automatically differentiate IV when loading!"+num2char(18) 
+					break
+				case "no":
+					returnStr = "Automatically differentiate IV when loading"
+					break
+				default:
+					returnStr = "error 1"
+					break
+			endswitch
+			break		
 		case "autoBGnone":
 			strswitch(state)
 				case "yes":

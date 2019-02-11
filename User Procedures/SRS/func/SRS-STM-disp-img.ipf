@@ -110,6 +110,7 @@ Function displayAllData([autoBG])
 	String autoBG
 	
 	SVAR autoSaveImage = root:WinGlobals:SRSSTMControl:autoSaveImage
+	SVAR autoDiff = root:WinGlobals:SRSSTMControl:autoDiff
 	
 	// Get current data folder
 	DFREF saveDF = GetDataFolderDFR()	  // Save
@@ -213,6 +214,19 @@ Function displayAllData([autoBG])
 	else
 		//Print "Error: no 2D or 3D image data found in the current data folder"
 		display1DWaves("all")
+		Label left "Current (\U)"
+		DoUpdate
+		if (cmpstr(autoDiff,"yes")==0) 
+			String oldWinName = WinName(0,1)
+			DoSomethingToAllTracesInGraph("",type="differentiate")
+			KillWindow/Z $oldWinName
+			// Get name of top graph
+			String graphName= WinName(0,1)
+			SetAxis left 1e-12,1e-07;DelayUpdate
+			ModifyGraph log(left)=1;DelayUpdate
+			Label left "dI/dV (\U)"
+			DoUpdate
+		endif
 		if (cmpstr(autoSaveImage,"yes")==0)
 			quickSaveImage(symbolicPath="dataJPEGIVDirectory",imageType="JPEG")
 			SetDataFolder root: 

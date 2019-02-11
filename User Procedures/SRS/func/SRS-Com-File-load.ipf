@@ -4034,12 +4034,12 @@ function SRSAutoLoader(type)
 		
 		String processingEndTimeStr = date()+", "+time()
 		Variable processingEndTime = datetime
-		Print "*************************************************************************"
-		Print "Total number of images processed: ", filesLoaded, " of ", numberofimages
+		Print "****************************************************************************************************************"
+		Print num2str(filesLoaded)+" of "+num2str(numberofimages)+" files of type "+type+" loaded from \""+path+"\""
 		Print "Image processing started, ", processingStartTimeStr
 		Print "Image processing finished, ", processingEndTimeStr
 		Print "Total processing time, ", (processingEndTime - processingStartTime)/60, "minutes"
-		Print "*************************************************************************"
+		Print "****************************************************************************************************************"
    	else 
    		Print "User cancelled file load" // user canceled
    	endif
@@ -4079,8 +4079,8 @@ Function LoadSomeImages(path,filelist)
 	Variable averagetime 
 	Variable timeleft
 	Variable avgWindow = 20
-	Make/O/N=(numberofimages) allTimesWave
-	Wave allTimesWave
+//	Make/O/N=(numberofimages) allTimesWave
+//	Wave allTimesWave
 	Make/O/N=(avgWindow) timeAvgWave
 	Wave timeAvgWave
 	timeAvgWave = (0 * timeAvgWave) + 1
@@ -4100,7 +4100,7 @@ Function LoadSomeImages(path,filelist)
       thelasttime = thetime
       thetime = datetime
       elapsedtime = thetime - thelasttime
-      allTimesWave[i] = elapsedtime
+ //     allTimesWave[i] = elapsedtime
      	addToArrayWithShuffle(elapsedtime,timeAvgWave)
       timeleft = round(((numberofimages - i) * averagetime)/60)
  		averagetime = Sum(timeAvgWave)/avgWindow  
@@ -4125,9 +4125,9 @@ Function LoadSomeImages(path,filelist)
    	KillWaves timeAvgWave
    	WaveClear timeAvgWave
    	// The procedure saves each load time into an array that can be displayed using the code below.
-	// Display1D("allTimesWave")
-   KillWaves allTimesWave
-   WaveClear allTimesWave
+//	Display1D("allTimesWave")
+//   KillWaves allTimesWave
+//  WaveClear allTimesWave
    Return i
 End
 

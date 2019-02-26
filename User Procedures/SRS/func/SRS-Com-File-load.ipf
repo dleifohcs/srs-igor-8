@@ -1333,7 +1333,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	// Redimension the axes 
 	SetDataFolder root:$(FlatDFStr)
 	FlatRedimensionAxes()
-	
+
 	// VERBOSE
 	if ( VERBOSE )
 		Print "Add experiment information to wave as an Igor Note"
@@ -1355,7 +1355,7 @@ Function SRSFlatFileLoad(pathStr,filenameStr)
 	endif 
 	
 	// Move to DF containing the data
-	SetDataFolder dataDF
+	SetDataFolder root:$(dataDF)
 
 // SHOULD MAKE THIS VARIABLE GLOBAL IN SRSSTMCONTROL VARIABLES	
 	// Delete unused matrix information if RETAIN_MATRIX_INFO not set
@@ -1772,14 +1772,10 @@ Function FlatFile3DProcess()
 
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
-	
 	// Move to axes DF
-	SetDataFolder saveDF
 	SetDataFolder axes
-
 	// V (for CITS)
-	SetDataFolder saveDF
-	SetDataFolder axes:axis_0
+	SetDataFolder axis_0
 	
 	Variable/G clock_count
 	Variable/G mirrored
@@ -1794,8 +1790,7 @@ Function FlatFile3DProcess()
 	String V_unit = unit
 	
 	// Move to table set 0 DF (x-axis) 
-	SetDataFolder saveDF
-	SetDataFolder axes:axis_0:tableset_0
+	SetDataFolder tableset_0
 	
 	// Interval 0
 	SetDataFolder interval_0
@@ -1810,8 +1805,9 @@ Function FlatFile3DProcess()
 	
 	// Return to table set 0 DF (x-axis)
 	SetDataFolder saveDF
-	SetDataFolder axes:axis_0:tableset_0
-	
+	SetDataFolder axes
+	SetDataFolder axis_0
+	SetDataFolder tableset_0
 	//Determine if a second interval exists (e.g., for dual mode CITS)
 	
 	// create variables for the dual mode and set to 0 until determined whether or not these exist
@@ -1834,7 +1830,9 @@ Function FlatFile3DProcess()
 		
 	// Move to table set 1 DF (y-axis) 
 	SetDataFolder saveDF
-	SetDataFolder axes:axis_0:tableset_1
+	SetDataFolder axes
+	SetDataFolder axis_0
+	SetDataFolder tableset_1
 	
 	// Interval 0
 	SetDataFolder interval_0
@@ -1849,7 +1847,9 @@ Function FlatFile3DProcess()
 	
 	// Get next tableset information if exists - e.g., if the "image down" CITS was acquired
 	SetDataFolder saveDF
-	SetDataFolder axes:axis_0:tableset_1
+	SetDataFolder axes
+	SetDataFolder axis_0
+	SetDataFolder tableset_1
 	
 	// create variables for the down scan and set to 1 until determined whether or not these exist
 	Variable y_1_start = 0
@@ -1869,7 +1869,8 @@ Function FlatFile3DProcess()
 	
 	// X (likely)
 	SetDataFolder saveDF
-	SetDataFolder axes:axis_1
+	SetDataFolder axes
+	SetDataFolder axis_1
 	Variable/G clock_count
 	Variable/G mirrored
 	Variable/G phys_start
@@ -1884,7 +1885,8 @@ Function FlatFile3DProcess()
 	
 	// Y (likely)
 	SetDataFolder saveDF
-	SetDataFolder axes:axis_2
+	SetDataFolder axes
+	SetDataFolder axis_2
 	Variable/G clock_count
 	Variable/G mirrored
 	Variable/G phys_start
@@ -1929,7 +1931,7 @@ Function FlatFile3DProcess()
 	
 	// Move to FlatFile DF
 	SetDataFolder saveDF
-	
+
 	// Make waves for each of the four images
 	Make/O/N=(x_0_width,y_0_width,V_width) dataFU
 	Duplicate/O dataFU, dataBU
@@ -2000,6 +2002,7 @@ Function FlatFile3DProcess()
 	SetDataFolder saveDF
 	SetDataFolder raw_data	
 	KillWaves phys_dataW
+	WaveClear phys_dataW
 	
 	// Move back to original DF
 	SetDataFolder saveDF
@@ -2290,7 +2293,6 @@ Function/S FlatRenameWaveAndDF()
 
 	// Save the current DF
 	String saveDF = GetDataFolder(1)
-
 	String DFname = ""
 	
 	SVAR autoSaveImage = root:WinGlobals:SRSSTMControl:autoSaveImage
@@ -2379,9 +2381,7 @@ Function/S FlatRenameWaveAndDF()
 		nameBD = replaceBadChars(nameBD)
 		nameBD = replaceSpace(nameBD)
 		nameBD = replaceHyphen(nameBD)
-		
-		
-		
+			
 		if (cmpstr(autoSaveImage,"yes")==0)
 		
 			String dateFU = StringByKey("Time stamp",wavenoteFU)
@@ -2422,7 +2422,7 @@ Function/S FlatRenameWaveAndDF()
 		DFname = replaceBadChars(DFname)
 		DFname = replaceSpace(DFname)
 		DFname = replaceHyphen(DFname)
-		
+
 		Make/O/D  $nameFU
 		Make/O/D  $nameBU
 		Make/O/D  $nameFD

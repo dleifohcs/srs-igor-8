@@ -195,8 +195,9 @@ Function displayAllData([autoBG])
 					endif
 				endif
 		    endif
-		    KillWaves imgW
-		    WaveClear imgW
+// BUG??  WHY ARE THESE LINES HERE?  COMMENTED OUT BECAUSE WAS DELETING CITS DATA...
+//		    KillWaves imgW
+//		    WaveClear imgW
 		endfor
 		if (cmpstr(autoSaveImage,"yes")==0)
 				SetDataFolder root:imgDF: 

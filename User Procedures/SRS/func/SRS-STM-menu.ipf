@@ -31,7 +31,8 @@ Menu "STM", dynamic
 		Submenu "Load Flat File Data"
 			"Load a Flat File image or spectroscopy file", SRSMenuLoadMatrixData()
 			"-"
-			"Load all Flat Files in a folder", autoLoadImages("no")
+			"Load all Image Flat Files in a folder", autoLoadImages("no","image")
+			"Load all I-V Flat Files in a folder", autoLoadImages("no","IV")
 			"-"
 			"Process all images in a folder to JPEG", autoLoadImages("yes","image")
 			"Process all I-V in a folder to JPEG", autoLoadImages("yes","IV")

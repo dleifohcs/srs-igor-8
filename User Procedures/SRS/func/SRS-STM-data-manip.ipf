@@ -3173,14 +3173,15 @@ Function IFFTimage(graphName)
 	String imgIFFTStr= imgWStr+"I"
 	
 	// Duplicate the image wave and then make this a complex wave
-	Duplicate/O imgW, $imgIFFTStr
-	Wave imgIFFT= $imgIFFTStr
+	//Duplicate/O imgW, $imgIFFTStr
+	//Wave imgIFFT= $imgIFFTStr
 	
 	// Compute the FFT magnitude
-	IFFT/C/DEST=dummyWave imgIFFT
-	IFFT/C/DEST=imgIFFT imgIFFT
-	CopyScales dummyWave, imgIFFT
-	
+	IFFT/C/DEST=$imgIFFTStr imgW
+	Wave imgIFFT= $imgIFFTStr
+	//IFFT/C/DEST=imgIFFT imgIFFT
+	//CopyScales dummyWave, imgIFFT
+		
 	// Convert the wave back to real so it can be displayed
 	Redimension/R imgIFFT
 	

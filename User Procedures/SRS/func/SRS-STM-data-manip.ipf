@@ -4278,3 +4278,118 @@ String graphName
 	Note/K imgW, imgInfoFromNote
 		
 End
+
+
+
+
+
+Function loadPEEMold()
+	String pathStr = "VLC_scenes"
+	//String pathStr = "P_XAS___SV_0_6__s190321_010"
+	KillDataFolder/Z root:tmp
+	NewDataFolder/S root:tmp
+	Variable imgStart = 1;
+	Variable imgEnd = 871;
+	String filenameBase = "scene"
+	String filenameEnd = ".jpg"
+	String filename = ""
+	String zeros = ""
+	String imgName = ""
+	Variable i
+	Make img // dummy wave so that numbering of imageload starts at 0
+	Make img0 // dummy wave so that numbering of imageload starts at 0
+	Make /N=(512,512,imgEnd) img3D
+	For ( i = imgStart; i<=imgEnd; i+=1 )
+		if ( i < 10000 )
+			zeros = "0"
+		endif 
+		if ( i < 1000 )
+			zeros = "00"
+		endif 
+		if ( i < 100 )
+			zeros = "000"
+		endif 
+		if ( i < 10 )
+			zeros = "0000"
+		endif 
+		filename = filenameBase + zeros + num2str(i) + filenameEnd
+		ImageLoad/P=$pathStr/N=img/T=jpeg/Q filename
+		imgName = "img"+num2str(i) 
+		Wave currentImage = $imgName
+		ImageTransform/O rgb2gray currentImage
+		MatrixTranspose currentImage
+		ImageRotate/O/A=270 currentImage
+		img3D[][][i-1] = CurrentImage[p][q]
+		WaveClear CurrentImage
+		KillWaves CurrentImage
+	EndFor
+	KillWaves img // kill dummy wave
+	KillWaves img0 // kill dummy wave
+	Duplicate/O img3D root:PEEM
+	KillDataFolder root:tmp
+End
+
+Function loadPEEM()
+	String pathStr
+	//pathStr = "VLC_scenes"
+	//pathStr = "P_XAS___SV_0_6__s190321_010"
+	pathStr = "s190321_010"
+	
+	KillDataFolder/Z root:tmp
+	NewDataFolder/S root:tmp
+	Variable imgStart = 1;
+	Variable imgEnd = 751;
+	Variable beginEV = 125	
+	Variable endEV = 200
+	String filenameBase = pathStr
+	String filenameEnd = ".TIF"
+	String filename = ""
+	String zeros = ""
+	String imgName = ""
+	Variable i
+	Make img // dummy wave so that numbering of imageload starts at 0
+	Make img0 // dummy wave so that numbering of imageload starts at 0
+	Make /N=(512,512,imgEnd) img3D
+	
+//	i = 1
+//	zeros= "00"
+//	filename = filenameBase + "#" + zeros + num2str(i) + filenameEnd
+//Print "Loading ", i, filename
+//	ImageLoad/P=$pathStr/N=img/T=tiff/Q filename
+//	imgName = "img"+num2str(i) 
+//	Wave currentImage = $imgName
+//	Duplicate currentImage, backgroundImage
+//	Wave backgroundImage
+		
+	For ( i = imgStart; i<=imgEnd; i+=1 )
+		if ( i < 100 )
+			zeros = "0"
+		endif 
+		if ( i < 10 )
+			zeros = "00"
+		endif
+		if ( i > 99 ) 
+			zeros = ""
+		endif
+		filename = filenameBase + "#" + zeros + num2str(i) + filenameEnd
+Print "Loading ", i, filename
+		ImageLoad/P=$pathStr/N=img/T=tiff/Q filename
+		imgName = "img"+num2str(i) 
+		Wave currentImage = $imgName
+//		currentImage = currentImage - backgroundImage
+		Redimension /D currentImage
+	//	ImageTransform/O rgb2gray currentImage
+		MatrixTranspose currentImage
+		ImageRotate/O/A=270 currentImage
+		img3D[][][i-1] = CurrentImage[p][q] 
+		WaveClear CurrentImage
+		KillWaves CurrentImage
+	EndFor
+	KillWaves img // kill dummy wave
+	KillWaves img0 // kill dummy wave
+	Duplicate/O img3D root:PEEM
+	KillDataFolder root:tmp
+	SetDataFolder root:
+	Wave PEEM
+	SetScale/I z, beginEV, endEV, "eV", PEEM
+End

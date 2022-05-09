@@ -2720,11 +2720,11 @@ Function loadAccelerometer( pathStr, filenameStr )
 		DeletePoints/M=0 0, 1, ampW
 	
 		// Set the scales and add units
-		//SetScale/I x, freqmin, freqmax, "Hz", ampW
-		//SetScale/I d, 0,1, "m/s", ampW
+		SetScale/I x, freqmin, freqmax, "Hz", ampW
+		SetScale/I d, 0,1, "m/s", ampW
 	
 		// convert to m/s/sqrt(Hz)
-		//ampW = ampW * 25.4 * 1e-3
+		ampW = ampW * 25.4 * 1e-3
 	
 		// Display the wave
 		display/k=1 ampW
@@ -4177,3 +4177,23 @@ Function addToArrayWithShuffle(item,array)
 //	while (i < waveLen)
 End 
 	
+	
+	
+	
+	
+	
+Function saveForSPIP()
+
+Variable i,j,refNum,p
+
+Wave img
+
+Open refNum as "img.dat" 
+For (i=1;i<=512;i+=1)
+	For (j=1;j<=512;j+=1)
+	p=img[j][i]
+	FBinWrite /F=5 refNum, p
+	EndFor
+EndFor
+Close refNum
+End
